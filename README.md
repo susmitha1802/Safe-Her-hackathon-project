@@ -3,6 +3,9 @@ SafeHer is a women's safety web application that enables users to store trusted 
 
 
 
+
+
+
 SafeHer - Women Safety Emergency Web App
 ->Users can save their basic details and trusted contact numbers.
 ->When and emergency happens,it sends an alert along with the user's current location to the saved contacts so they can help quickly.
@@ -11,7 +14,10 @@ SafeHer - Women Safety Emergency Web App
   The AI Legal Assistant included in this is functional and works well.
 
 
-  
+
+
+
+
 
 #TECHNOLOGIES USED
 *HTML
