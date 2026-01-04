@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safe Path Input</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #2E7D32, #66BB6A);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 600px;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      color: #2E7D32;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-container {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border 0.3s, box-shadow 0.3s;
+    }
+
+    .search-input:focus {
+      border-color: #2E7D32;
+      box-shadow: 0 0 8px rgba(46,125,50,0.3);
+      outline: none;
+    }
+
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .search-result-item {
+      padding: 0.8rem;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+
+    .search-result-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .map-container {
+      height: 300px;
+      width: 100%;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+    }
+
+    .coordinates-display {
+      background: #f0f0f0;
+      padding: 0.8rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, #2E7D32, #1B5E20);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    .info {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .instructions {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .instructions h3 {
+      color: #2E7D32;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container { padding: 1.5rem; }
+      h1 { font-size: 1.6rem; }
+      .map-container { height: 250px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚶 Enter Destination</h1>
+    
+    <div class="instructions">
+      <h3>How to set your destination:</h3>
+      <p>1. Search for a location using the search box below</p>
+      <p>2. Select a location from the dropdown results</p>
+      <p>3. Verify the location on the map (you can also click on the map to adjust)</p>
+      <p>4. Click "Show Safe Route" to get directions</p>
+    </div>
+    
+    <div class="search-container">
+      <input type="text" class="search-input" id="locationSearch" placeholder="Search for your destination...">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <div class="map-container" id="map"></div>
+    
+    <div class="coordinates-display" id="coordinatesDisplay">
+      Selected Destination: <span id="locationText">None selected</span><br>
+      Coordinates: <span id="coordinatesText"></span>
+    </div>
+
+    <form id="routeForm">
+      <button type="submit" id="routeButton" disabled>Show Safe Route</button>
+    </form>
+    
+    <p class="info">Start location is set to default coordinates.</p>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    // Initialize variables
+    const form = document.getElementById("routeForm");
+    const searchInput = document.getElementById("locationSearch");
+    const searchResults = document.getElementById("searchResults");
+    const coordinatesDisplay = document.getElementById("coordinatesDisplay");
+    const coordinatesText = document.getElementById("coordinatesText");
+    const locationText = document.getElementById("locationText");
+    const mapContainer = document.getElementById("map");
+    const routeButton = document.getElementById("routeButton");
+    
+    let map = null;
+    let marker = null;
+    let selectedLocation = null;
+    let selectedLocationName = "";
+
+    // Initialize the map
+    function initMap(lat = 17.7101146, lng = 83.2049418) {
+      if (!map) {
+        map = L.map('map').setView([lat, lng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Add click event to map
+        map.on('click', function(e) {
+          setSelectedLocation(e.latlng.lat, e.latlng.lng, "Selected Location");
+          updateMapMarker(e.latlng.lat, e.latlng.lng);
+        });
+        
+        // Add initial marker for default location
+        updateMapMarker(lat, lng);
+      } else {
+        map.setView([lat, lng], 13);
+        updateMapMarker(lat, lng);
+      }
+    }
+
+    // Update map marker
+    function updateMapMarker(lat, lng) {
+      if (marker) {
+        map.removeLayer(marker);
+      }
+      
+      // Create a custom green icon for destination
+      const greenIcon = L.icon({
+        iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">
+            <path fill="#2E7D32" d="M12 0c-4.198 0-8 3.403-8 7.602 0 4.198 3.469 9.21 8 16.398 4.531-7.188 8-12.2 8-16.398 0-4.199-3.801-7.602-8-7.602zm0 11c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z"/>
+          </svg>
+        `),
+        iconSize: [28, 28],
+        iconAnchor: [14, 28],
+        popupAnchor: [0, -28]
+      });
+      
+      marker = L.marker([lat, lng], {icon: greenIcon}).addTo(map)
+        .bindPopup('Destination Location')
+        .openPopup();
+    }
+
+    // Set selected location and update display
+    function setSelectedLocation(lat, lng, name = "Selected Location") {
+      selectedLocation = { lat, lng };
+      selectedLocationName = name;
+      
+      locationText.textContent = name;
+      coordinatesText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      
+      // Enable the route button
+      routeButton.disabled = false;
+    }
+
+    // Search for locations using Nominatim API
+    async function searchLocation(query) {
+      if (!query || query.length < 3) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        searchResults.innerHTML = '';
+        
+        if (data.length === 0) {
+          searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
+        } else {
+          data.slice(0, 5).forEach(item => {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'search-result-item';
+            resultItem.textContent = item.display_name;
+            resultItem.addEventListener('click', () => {
+              const lat = parseFloat(item.lat);
+              const lng = parseFloat(item.lon);
+              
+              searchInput.value = item.display_name;
+              searchResults.style.display = 'none';
+              
+              // Update map and selection
+              initMap(lat, lng);
+              setSelectedLocation(lat, lng, item.display_name);
+            });
+            
+            searchResults.appendChild(resultItem);
+          });
+        }
+        
+        searchResults.style.display = 'block';
+      } catch (error) {
+        console.error('Error searching location:', error);
+        searchResults.innerHTML = '<div class="search-result-item">Error searching locations</div>';
+        searchResults.style.display = 'block';
+      }
+    }
+
+    // Debounce function to limit API calls
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', debounce(() => {
+      searchLocation(searchInput.value);
+    }, 300));
+
+    searchInput.addEventListener('focus', () => {
+      if (searchResults.children.length > 0) {
+        searchResults.style.display = 'block';
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.style.display = 'none';
+      }
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      
+      if (!selectedLocation) {
+        alert("Please select a destination first");
+        return;
+      }
+      
+      // Default start coordinates
+      const startLat = 17.7101146;
+      const startLng = 83.2049418;
+
+      // Get destination from selected location
+      const endLat = selectedLocation.lat;
+      const endLng = selectedLocation.lng;
+
+      // Redirect with query params
+      window.location.href = `C:/Users/Chandi/Desktop/Hackathon/new/route.html?startLat=${startLat}&startLng=${startLng}&endLat=${endLat}&endLng=${endLng}`;
+    });
+
+    // Initialize the map on page load
+    window.addEventListener('load', function() {
+      initMap();
+    });
+  </script>
+</body>
+</html>

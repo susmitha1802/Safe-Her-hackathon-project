@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SafeHer - Women Safety Platform</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* -------------------------
+       Base / variables
+       ------------------------- */
+    :root{
+      --primary:#502631;
+      --secondary:#5e35b1;
+      --accent:#ff3b6d;
+      --muted:#888;
+      --bg:#f9f9f9;
+      --card:#ffffff;
+      --shadow: 0 8px 24px rgba(15,15,15,0.08);
+      --glass: rgba(255,255,255,0.7);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(180deg,var(--bg),#ffffff);
+      color:#222;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+    }
+
+    /* -------------------------
+       NAV
+       ------------------------- */
+    header{
+      position:sticky;top:0;z-index:60;
+      background:linear-gradient(135deg,var(--secondary),var(--primary));
+      color:white;padding:0.6rem 1rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+    .nav {
+      max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    }
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem}
+    .logo i{font-size:1.35rem}
+    .nav-links{display:flex;gap:1rem;align-items:center;list-style:none}
+    .nav-links a{color:white;text-decoration:none;padding:0.45rem 0.6rem;border-radius:8px;transition:all .18s}
+    .nav-links a:hover{background:rgba(255,255,255,0.08);transform:translateY(-2px)}
+    .nav-actions{display:flex;gap:0.6rem;align-items:center}
+    .nav-btn{background:rgba(255,255,255,0.12);border:0;color:white;padding:0.45rem 0.8rem;border-radius:8px;cursor:pointer}
+    .nav-toggle{display:none;background:transparent;border:0;color:white;font-size:1.25rem;cursor:pointer}
+
+    /* -------------------------
+       HERO
+       ------------------------- */
+    .hero{
+      background: linear-gradient(0deg, rgba(94,53,177,0.85), rgba(255,59,109,0.63)), url('https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&auto=format&fit=crop&w=1770&q=80') center/cover no-repeat;
+      color:white;padding:4.5rem 1.25rem 3rem;text-align:center;
+      display:flex;flex-direction:column;align-items:center;gap:1rem;
+    }
+    .hero-inner{max-width:1000px}
+    .hero h1{font-size:2.6rem;letter-spacing:-0.5px;margin-bottom:.25rem;text-shadow:0 8px 28px rgba(0,0,0,0.3)}
+    .hero p{font-size:1.05rem;max-width:780px;margin:0 auto;color:rgba(255,255,255,0.95)}
+    .cta-wrap{display:flex;gap:0.75rem;justify-content:center;margin-top:0.6rem;flex-wrap:wrap}
+    .btn{
+      background:var(--card);color:var(--primary);padding:.7rem 1.15rem;border-radius:999px;border:0;font-weight:700;cursor:pointer;
+      box-shadow: var(--shadow); transition:transform .18s, box-shadow .18s;
+    }
+    .btn:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(80,38,49,0.12)}
+    .ghost{background:transparent;color:white;border:1px solid rgba(255,255,255,0.18)}
+    .hero-stats{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;justify-content:center}
+
+    /* -------------------------
+       FEATURES
+       ------------------------- */
+    .section{padding:3.2rem 1rem}
+    .container{max-width:1100px;margin:0 auto}
+    .section-title{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+    .section-title h2{color:var(--secondary);font-size:1.6rem}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:1.4rem}
+    .card{
+      background:var(--card);padding:1.5rem;border-radius:12px;box-shadow:var(--shadow);
+      transition:transform .22s, box-shadow .22s;cursor:pointer;text-decoration:none;color:inherit;
+      display:flex;flex-direction:column;gap:.7rem;min-height:160px;
+    }
+    .card:hover{transform:translateY(-8px);box-shadow:0 30px 60px rgba(15,15,15,0.08)}
+    .card i{font-size:2.2rem;color:var(--primary)}
+    .card h3{color:var(--secondary);font-size:1.05rem}
+    .card p{color:var(--muted);font-size:0.95rem}
+
+    /* Danger zones badge */
+    .dz-badge{background:rgba(255,0,0,0.12);color:#a00;padding:.25rem .5rem;border-radius:999px;font-weight:600;margin-left:auto}
+
+    /* -------------------------
+       EMERGENCY SECTION
+       ------------------------- */
+    .emergency{
+      background:linear-gradient(135deg,var(--secondary),var(--primary));color:white;padding:2.4rem;border-radius:12px;margin:1rem 0;
+      text-align:center;box-shadow:var(--shadow);
+    }
+    .emergency-btn{
+      width:120px;height:120px;border-radius:999px;background:red;display:flex;align-items:center;justify-content:center;margin:1rem auto;
+      box-shadow:0 18px 48px rgba(255,0,0,0.18);animation:pulse 1.6s infinite;
+      cursor:pointer;border:3px solid rgba(255,255,255,0.07);
+    }
+    .emergency-btn i{font-size:2.4rem;color:white}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+    /* -------------------------
+       PROFILE SECTION
+       ------------------------- */
+    .profile{display:flex;gap:1.2rem;align-items:flex-start;flex-wrap:wrap;margin-top:1rem}
+    .profile-form{flex:1;min-width:260px;background:var(--card);padding:1.15rem;border-radius:10px;box-shadow:var(--shadow)}
+    .profile-form label{display:block;font-weight:600;margin-top:.5rem;color:#333}
+    .profile-form input{width:100%;padding:.6rem;border-radius:8px;border:1px solid #e6e6e6;margin-top:.35rem}
+    .profile-preview{width:320px;min-width:220px;background:linear-gradient(180deg,#fff,#fff);padding:1rem;border-radius:10px;box-shadow:var(--shadow)}
+    .profile-preview h4{margin-bottom:.5rem;color:var(--primary)}
+
+    /* small helpers */
+    .muted{color:var(--muted);font-size:.92rem}
+    .flex{display:flex;gap:.6rem;align-items:center}
+
+    /* FOOTER */
+    footer{padding:1.4rem 1rem;background:#111;color:#eee;text-align:center;margin-top:2rem}
+
+    /* -------------------------
+       Responsive adjustments
+       ------------------------- */
+    @media (max-width: 900px){
+      .cards{grid-template-columns:repeat(2,1fr)}
+      .hero h1{font-size:2.2rem}
+    }
+    @media (max-width: 640px){
+      .nav-links{display:none}
+      .nav-toggle{display:block}
+      .cards{grid-template-columns:1fr}
+      .hero{padding:3.2rem 1rem}
+      .profile{flex-direction:column}
+      .profile-preview{width:100%}
+    }
+
+    /* Mobile nav show */
+    .nav-links.show{display:flex;position:absolute;top:64px;right:12px;background:linear-gradient(180deg,var(--secondary),var(--primary));padding:0.6rem;border-radius:8px;flex-direction:column;min-width:150px}
+    .nav-links.show a{color:white}
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav container" role="navigation" aria-label="Main navigation">
+      <div class="logo"><i class="fas fa-shield-alt"></i><span>SafeHer</span></div>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="C:/Users/Chandi/Desktop/Hackathon/new/login.html">Login</a></li>
+        <li><a href="#emergency">Emergency</a></li>
+        <li><a href="#profile">Profile</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <div class="muted" id="dzCount" title="Danger zones saved locally">DZ: 0</div>
+        <button class="nav-btn" onclick="location.href='safepath.html'">Safest Path</button>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <main>
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="hero-inner container">
+        <h1 id="hero-title">Your Safety Is Our Priority</h1>
+        <p>SafeHer is a comprehensive women safety platform that provides instant help during emergencies, real-time location sharing and safe routing to keep you protected.</p>
+
+        <div class="cta-wrap">
+          <button class="btn" onclick="document.getElementById('profile').scrollIntoView({behavior:'smooth'})">Create Your Safety Profile</button>
+          <a class="btn ghost" href="#features" style="text-decoration:none">Explore Features</a>
+        </div>
+
+        <div class="hero-stats muted" aria-hidden="true">
+          <div class="flex"><i class="fas fa-users"></i>&nbsp;<strong id="usersCount">1.2k</strong> users</div>
+          <div class="flex"><i class="fas fa-map-marker-alt"></i>&nbsp;<span id="safeRoutesCount">47</span> safe routes</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section container" id="features" aria-labelledby="feat-title">
+      <div class="section-title">
+        <h2 id="feat-title">How SafeHer Protects You</h2>
+        <div class="muted" style="margin-left:auto">Community-driven safety</div>
+      </div>
+
+      <div class="cards" role="list" aria-label="Features list">
+        <a class="card" role="listitem" href="safepath.html" title="Open Safest Path">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>Safest Path <span class="dz-badge" id="dzBadge" style="display:none"></span></h3>
+          <p>Find routes that avoid user-reported danger zones and walk safely.</p>
+        </a>
+
+        <div class="card" role="listitem" onclick="document.getElementById('profile').scrollIntoView({behavior:'smooth'})" tabindex="0">
+          <i class="fas fa-user-circle"></i>
+          <h3>Safety Profile</h3>
+          <p>Store emergency contacts, address and preferences so help reaches you faster.</p>
+        </div>
+
+        <div class="card" role="listitem" onclick="triggerEmergencyModal()" tabindex="0">
+          <i class="fas fa-bell"></i>
+          <h3>Emergency Alert</h3>
+          <p>Instantly notify trusted contacts and call national women's helpline (103).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Emergency -->
+    <section class="container section" id="emergency" aria-labelledby="em-title">
+      <div class="emergency" role="region" aria-live="polite">
+        <h2 id="em-title">Emergency Assistance</h2>
+        <p>In case of danger, press the button below. You will have a short cancel window to avoid accidental alerts.</p>
+
+        <div class="emergency-btn" id="emergencyBtn" role="button" tabindex="0" aria-label="Trigger emergency alert">
+          <i class="fas fa-phone-alt"></i>
+        </div>
+
+        <p class="muted">Your location and profile details will be prepared and (simulated) shared.</p>
+      </div>
+    </section>
+
+    <!-- Profile -->
+    <section class="container section" id="profile" aria-labelledby="profile-title">
+      <div class="section-title"><h2 id="profile-title">Your Safety Profile</h2><div class="muted">Keep details updated</div></div>
+
+      <div class="profile" role="form">
+        <form class="profile-form" id="profileForm" aria-label="Safety profile form">
+          <label for="name">Full Name</label>
+          <input id="name" type="text" placeholder="Enter your full name" required>
+
+          <label for="address">Address</label>
+          <input id="address" type="text" placeholder="Enter your address" required>
+
+          <label for="phone1">Trusted Contact 1 (phone)</label>
+          <input id="phone1" type="tel" placeholder="+91XXXXXXXXXX" pattern="[0-9+ ]{7,20}" required>
+
+          <label for="phone2">Trusted Contact 2 (phone)</label>
+          <input id="phone2" type="tel" placeholder="+91XXXXXXXXXX" pattern="[0-9+ ]{7,20}" required>
+
+          <div style="margin-top:0.9rem;display:flex;gap:.6rem;align-items:center;">
+            <button class="btn" type="submit">Save Profile</button>
+            <button class="btn ghost" type="button" id="clearProfile">Clear</button>
+          </div>
+
+          <p class="muted" id="profileMsg" aria-live="polite" style="margin-top:.6rem"></p>
+        </form>
+
+        <aside class="profile-preview" id="profilePreview" aria-label="Saved profile preview">
+          <h4>Saved Profile</h4>
+          <div id="profileCardContent" class="muted">No profile saved yet</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <p>&copy; <span id="year"></span> SafeHer - Women Safety Platform. All rights reserved.</p>
+        <p class="muted">Need help? Call 103 (Women's Emergency Helpline)</p>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Emergency Modal (injected) -->
+  <script>
+  // ---------- Utility & initialization ----------
+  (function(){
+    // set year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Mobile nav toggle
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle?.addEventListener('click', ()=> navLinks.classList.toggle('show'));
+
+    // Populate Danger Zones count from localStorage (reads your existing redZones)
+    function refreshDZInfo(){
+      const dz = JSON.parse(localStorage.getItem('redZones') || '[]');
+      const count = dz.length || 0;
+      document.getElementById('dzCount').textContent = "DZ: " + count;
+      const dzBadge = document.getElementById('dzBadge');
+      if(count>0){ dzBadge.textContent = count; dzBadge.style.display='inline-block'; }
+      else { dzBadge.style.display='none' }
+    }
+    refreshDZInfo();
+
+    // Hook up emergency button (desktop + keyboard)
+    const emBtn = document.getElementById('emergencyBtn');
+    emBtn.addEventListener('click', triggerEmergencyModal);
+    emBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); triggerEmergencyModal(); } });
+
+    // Profile save/clear
+    const pf = document.getElementById('profileForm');
+    const msg = document.getElementById('profileMsg');
+    function renderProfileCard(){
+      const p = JSON.parse(localStorage.getItem('safeHerProfile') || 'null');
+      const area = document.getElementById('profileCardContent');
+      if(p){
+        area.innerHTML = `<strong style="color:var(--primary)">${escapeHtml(p.name)}</strong><div class="muted" style="margin-top:6px">${escapeHtml(p.address)}</div>
+          <div style="margin-top:.6rem">📞 ${escapeHtml(p.phone1)} | 📞 ${escapeHtml(p.phone2)}</div>`;
+      } else {
+        area.textContent = 'No profile saved yet';
+      }
+    }
+    renderProfileCard();
+
+    pf.addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const phone1 = document.getElementById('phone1').value.trim();
+      const phone2 = document.getElementById('phone2').value.trim();
+
+      if(!name||!address||!phone1||!phone2){
+        msg.textContent = 'Please fill all fields.';
+        msg.style.color = '#b71c1c';
+        return;
+      }
+      // basic number validation (digits length)
+      const digitsOnly = s => s.replace(/\D/g,'');
+      if(digitsOnly(phone1).length < 7 || digitsOnly(phone2).length < 7){
+        msg.textContent = 'Please enter valid phone numbers.';
+        msg.style.color = '#b71c1c';
+        return;
+      }
+
+      const profile = { name, address, phone1, phone2 };
+      localStorage.setItem('safeHerProfile', JSON.stringify(profile));
+      msg.textContent = 'Profile saved successfully!';
+      msg.style.color = '#2e7d32';
+      renderProfileCard();
+      setTimeout(()=> msg.textContent = '', 3000);
+    });
+
+    // Clear
+    document.getElementById('clearProfile').addEventListener('click', ()=>{
+      localStorage.removeItem('safeHerProfile');
+      renderProfileCard();
+      document.getElementById('profileMsg').textContent = 'Profile cleared.';
+      document.getElementById('profileMsg').style.color = '#555';
+      setTimeout(()=> document.getElementById('profileMsg').textContent = '', 2200);
+    });
+
+    // Small UX: prefill form from saved profile
+    (function prefill(){
+      const p = JSON.parse(localStorage.getItem('safeHerProfile') || 'null');
+      if(!p) return;
+      document.getElementById('name').value = p.name || '';
+      document.getElementById('address').value = p.address || '';
+      document.getElementById('phone1').value = p.phone1 || '';
+      document.getElementById('phone2').value = p.phone2 || '';
+    })();
+
+    // helper escape
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]) ); }
+  })();
+
+
+  // ---------- Emergency Modal + Countdown ----------
+  function triggerEmergencyModal(){
+    // Build modal
+    if(document.getElementById('emModal')) return; // avoid duplicates
+    const modal = document.createElement('div');
+    modal.id = 'emModal';
+    modal.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:9999;';
+    modal.innerHTML = `
+      <div style="width:92%;max-width:420px;background:white;border-radius:12px;padding:1.2rem 1rem;box-shadow:0 30px 80px rgba(0,0,0,0.3);text-align:center;">
+        <h3 style="margin-bottom:.4rem;color:var(--primary)">🚨 Send Emergency Alert</h3>
+        <p style="color:#444;margin-bottom:.6rem">An alert will be sent in <strong id="emCount">5</strong> seconds. Your saved profile and approximate location will be included.</p>
+        <div style="display:flex;gap:.6rem;justify-content:center;margin-top:.6rem">
+          <button id="cancelEm" style="padding:.5rem .9rem;border-radius:8px;border:0;background:#cfcfcf;cursor:pointer">Cancel</button>
+          <button id="sendNow" style="padding:.5rem .9rem;border-radius:8px;border:0;background:var(--primary);color:white;cursor:pointer">Send Now</button>
+        </div>
+        <p id="emNote" style="color:#666;font-size:.9rem;margin-top:.6rem">Note: this demo simulates sending; the helpline dial will open.</p>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    let count = 5;
+    const countEl = document.getElementById('emCount');
+    const interval = setInterval(()=>{
+      count--;
+      countEl.textContent = count;
+      if(count<=0){ clearInterval(interval); doSendEmergency(); }
+    },1000);
+
+    // Cancel
+    document.getElementById('cancelEm').addEventListener('click', ()=> {
+      clearInterval(interval);
+      modal.remove();
+    });
+
+    // Send immediately
+    document.getElementById('sendNow').addEventListener('click', ()=> {
+      clearInterval(interval);
+      doSendEmergency();
+    });
+
+    // close on outside click (optional)
+    modal.addEventListener('click', (e)=>{ if(e.target===modal){ clearInterval(interval); modal.remove(); } });
+  }
+
+  // Actual send routine (simulated)
+  function doSendEmergency(){
+    const modal = document.getElementById('emModal'); if(modal) modal.remove();
+
+    // Retrieve profile & approximate location (if available)
+    const profile = JSON.parse(localStorage.getItem('safeHerProfile') || 'null');
+    let locText = 'Location not available';
+    if(navigator.geolocation){
+      // try to get a fresh quick location, but don't block: timeout fallback
+      const success = (pos) => {
+        locText = 'Lat ${pos.coords.latitude.toFixed(6)}, Lng ${pos.coords.longitude.toFixed(6)}';
+        finalizeSend(profile, locText);
+      };
+      const fail = ()=> finalizeSend(profile, locText);
+      navigator.geolocation.getCurrentPosition(success, fail, {timeout:4000});
+      // If geolocation is slow, still finalize after a small timeout
+      setTimeout(()=> finalizeSend(profile, locText), 4500);
+    } else {
+      finalizeSend(profile, locText);
+    }
+  }
+
+  function finalizeSend(profile, locText){
+    // Build message summary (demo)
+    const name = profile?.name || 'Unknown';
+    const contacts = [profile?.phone1, profile?.phone2].filter(Boolean).join(', ') || 'No contacts';
+    console.log('--- Emergency payload (simulated) ---');
+    console.log('Name:', name);
+    console.log('Contacts:', contacts);
+    console.log('Location:', locText);
+    console.log('------------------------------------');
+
+    // Vibrate (mobile) to give haptic feedback
+    if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+    // Show confirmation small modal then dial helpline (simulate)
+    const confirmBox = document.createElement('div');
+    confirmBox.style.cssText = 'position:fixed;left:50%;top:20%;transform:translateX(-50%);background:#fff;border-radius:10px;padding:1rem 1.2rem;box-shadow:0 18px 60px rgba(0,0,0,0.2);z-index:9999;text-align:center';
+    confirmBox.innerHTML = `<div style="font-weight:700;color:var(--primary)">Alert Sent</div>
+       <div style="margin-top:.4rem;color:#444;font-size:.95rem">We attempted to share your profile & location (demo).</div>
+       <div style="margin-top:.6rem"><button id="closeSent" style="padding:.45rem .8rem;border-radius:8px;border:0;background:var(--primary);color:white;cursor:pointer">OK</button></div>`;
+    document.body.appendChild(confirmBox);
+    document.getElementById('closeSent').addEventListener('click', ()=> confirmBox.remove());
+
+    // Open helpline dialer as an action (can't auto-call in browsers without user gesture)
+    setTimeout(()=> {
+      // Attempt to open tel:103 — user must confirm on device
+      try { window.open('tel:103'); } catch(e){ console.warn('Dial not possible in this environment'); }
+    }, 600);
+  }
+
+  </script>
+  <script src='https://cdn.jotfor.ms/agent/embedjs/01994ade2cf07097a6d5195c67973b658051/embed.js'>
+</script>
+</body>
+</html>
